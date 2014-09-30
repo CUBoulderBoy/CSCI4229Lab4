@@ -38,7 +38,7 @@ int th=0;         //  Azimuth of view angle
 int ph=0;         //  Elevation of view angle
 int fov=55;       //  Field of view (for perspective)
 double asp=1;     //  Aspect ratio
-double dim=10.0;  //  Size of world
+double dim=15.0;  //  Size of world
 int new_snow=1;   //  Global to determine if arrays need to be populated
 int frozen=1;     //  Frozen or falling snow
 
@@ -50,10 +50,10 @@ unsigned long dt;
 int first=0;
 
 // Arrays to store snowflake data
-#define NUM_SNOWFLAKES 12
-int x_ar[NUM_SNOWFLAKES];
-int y_ar[NUM_SNOWFLAKES];
-int z_ar[NUM_SNOWFLAKES];
+#define NUM_SNOWFLAKES 20
+double x_ar[NUM_SNOWFLAKES];
+double y_ar[NUM_SNOWFLAKES];
+double z_ar[NUM_SNOWFLAKES];
 double s_ar[NUM_SNOWFLAKES];
 double m_ar[NUM_SNOWFLAKES];
 
@@ -231,90 +231,72 @@ void display()
    } 
 
    // Snowfall frozen in time
-   if( frozen == 1){
+   //if( frozen == 1){
       // Building snowfall data
-      if( new_snow == 1 ){
-         for (i = 0; i < NUM_SNOWFLAKES; i++){
-            // Set x for i in array
-            x = rand() % int_dim;
-            if (rand() % 2 == 0){
-               x = x * -1;
-            }
-            x_ar[i] = x;
-
-            // Set y for i in array
-            y = rand() % int_dim;
-            if (rand() % 2 == 0){
-               y = y * -1;
-            }
-            y_ar[i] = y;
-
-            // Set z for i in array
-            z = rand() % int_dim;
-            if (rand() % 2 == 0){
-               z = z * -1;
-            }
-            z_ar[i] = z;
-
-            // Set size of primary ice crystal
-            s = rand() % int_dim;
-            if (s == 0.0){
-               s = 0.5;
-            }
-            else{
-               s = 1/s;
-            }
-            s_ar[i] = s;
-
-            // Set size modifier for secondary ice crystals
-            m = rand() % int_dim;
-            if (m == 0.0){
-               m = 1.3;
-            }
-            else{
-               m = 1 + 1/m;
-            }
-            m_ar[i] = m;
-         }
-         new_snow = 0;
-      }
-
-      // Building snowfall
+   if( new_snow == 1 ){
       for (i = 0; i < NUM_SNOWFLAKES; i++){
-         snowflake(x_ar[i], y_ar[i], z_ar[i], s_ar[i],s_ar[i],s_ar[i], m_ar[i], 0);
-      }
-   }
-
-   // Falling snow (rerender each time)
-   else{
-      for (i = 0; i < 10; i++){
-         x = rand() % 10;
-         y = rand() % 10;
-         z = rand() % 10;
+         // Set x for i in array
+         x = rand() % int_dim;
          if (rand() % 2 == 0){
             x = x * -1;
          }
+         x_ar[i] = x;
+
+         // Set y for i in array
+         y = rand() % int_dim;
          if (rand() % 2 == 0){
             y = y * -1;
          }
+         y_ar[i] = y;
+
+         // Set z for i in array
+         z = rand() % int_dim;
          if (rand() % 2 == 0){
             z = z * -1;
          }
-         s = rand() % 10;
+         z_ar[i] = z;
+
+         // Set size of primary ice crystal
+         s = rand() % int_dim;
          if (s == 0.0){
             s = 0.5;
          }
          else{
             s = 1/s;
          }
-         m = rand() % 7;
+         s_ar[i] = s;
+
+         // Set size modifier for secondary ice crystals
+         m = rand() % int_dim;
          if (m == 0.0){
             m = 1.3;
          }
          else{
             m = 1 + 1/m;
          }
-         snowflake(x, y, z, s,s,s, m, 0);
+         m_ar[i] = m;
+      }  
+      new_snow = 0;
+   }  
+
+   if( frozen == 1 ){
+      // Building snowfall
+      for (i = 0; i < NUM_SNOWFLAKES; i++){
+         snowflake(x_ar[i], y_ar[i], z_ar[i], s_ar[i],s_ar[i],s_ar[i], m_ar[i], 0);
+      }
+   }
+   else{
+      for (i = 0; i < NUM_SNOWFLAKES; i++){
+         // Create snowflake
+         snowflake(x_ar[i], y_ar[i], z_ar[i], s_ar[i],s_ar[i],s_ar[i], m_ar[i], 0);
+
+         // Move snowflake down
+         y_ar[i] = y_ar[i] - 0.4;
+
+         // If snowflake has fallen off view, move back to top
+         if (y_ar[i] < -dim){
+            y_ar[i] = dim;
+         }
       }
    }
 
@@ -324,12 +306,13 @@ void display()
    {
       glBegin(GL_LINES);
       glVertex3d(0.0,0.0,0.0);
-      glVertex3d(len,0.0,0.0);
+      glVertex3d(dim,0.0,0.0);
       glVertex3d(0.0,0.0,0.0);
-      glVertex3d(0.0,len,0.0);
+      glVertex3d(0.0,dim,0.0);
       glVertex3d(0.0,0.0,0.0);
-      glVertex3d(0.0,0.0,len);
+      glVertex3d(0.0,0.0,dim);
       glEnd();
+
       //  Label axes
       glRasterPos3d(len,0.0,0.0);
       Print("X");
@@ -436,24 +419,16 @@ void reshape(int width,int height)
  */
 void idle()
 {
-   int rho;
+   double rho;
 
    dt = clock();
-   rho = (int)(dt - t)/CLOCKS_PER_SEC;
-   if (rho == 1){
+   rho = (double)(dt - t)/CLOCKS_PER_SEC;
+   if (rho >= 0.2){
       t = dt;
       if(frozen == 0){
          glutPostRedisplay();
       }
    }
-}
-
-/*
- *  Initclock funcition for setting time
- */
-void initClock()
-{
-   t = clock();
 }
 
 /*
@@ -477,7 +452,7 @@ int main(int argc,char* argv[])
    glutIdleFunc(idle);
 
    // Set clock
-   initClock();
+   t = clock();
 
    //  Pass control to GLUT so it can interact with the user
    glutMainLoop();
