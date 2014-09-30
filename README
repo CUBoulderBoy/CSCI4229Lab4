@@ -1,0 +1,19 @@
+Lab 4: Snowfall with Projections
+
+Christopher Jordan
+CSCI4229 Fall 2014
+
+Utilizing code provided from William Schreuder via the ex9 program
+
+Approximate time: 10 hours
+
+Key bindings
+  m          Toggle between perspective and orthogonal
+  f          Toggle between snow frozen in time and falling snow
+  n          For new snow view in frozen in time mode
+  +/-        Changes field of view for perspective
+  a          Toggle axes
+  arrows     Change view angle
+  PgDn/PgUp  Zoom in and out
+  0          Reset view angle
+  ESC        Exit
