@@ -67,6 +67,8 @@ int yOrigin = -1;
 int m_button = 0;
 double max_dim = 40.0; //  Max dim to keep view of something
 double min_dim = 8.0;  //  Min dim to keep view of something
+double Ex, Ey, Ez;
+int cam = 1;
 
 /*
  *  Convenience routine to output raster text
@@ -224,9 +226,11 @@ void display()
    //  Perspective - set eye position
    if (mode)
    {
-      double Ex = -2*dim*Sin(th)*Cos(ph);
-      double Ey = +2*dim        *Sin(ph);
-      double Ez = +2*dim*Cos(th)*Cos(ph);
+      if ( cam ){
+         Ex = -2*dim*Sin(th)*Cos(ph);
+         Ey = +2*dim        *Sin(ph);
+         Ez = +2*dim*Cos(th)*Cos(ph);
+      }
       gluLookAt(Ex,Ey,Ez , 0,0,0 , 0,Cos(ph),0);
    }
    
@@ -366,6 +370,9 @@ void special(int key,int x,int y)
    th %= 360;
    ph %= 360;
 
+   //  Set project to auto
+   cam = 1;
+
    //  Update projection
    Project();
    
@@ -401,6 +408,10 @@ void key(unsigned char ch,int x,int y)
       fov--;
    else if (ch == '+' && ch<179)
       fov++;
+
+   //  Set project to auto
+   cam = 1;
+
    //  Reproject
    Project();
 
@@ -436,10 +447,13 @@ void mouseMove(int x, int y) {
       ph += (y - yOrigin)/2;
       ph %= 360;
       yOrigin = y;
+      cam = 1;
    }
    if ( m_button == 1){
       //  Right and left movement changes
-      //fov += (xOrigin - x)/5;
+      Ex += (xOrigin - x)/2;
+      cam = 0;
+      xOrigin = x;
 
       // Forward and backward movement
       fov += (y - yOrigin)/2;
