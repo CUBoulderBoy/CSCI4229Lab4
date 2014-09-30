@@ -61,6 +61,10 @@ double m_ar[NUM_SNOWFLAKES];
 #define Cos(th) cos(3.1415927/180*(th))
 #define Sin(th) sin(3.1415927/180*(th))
 
+// Mouse variables
+int xOrigin = -1;
+int yOrigin = -1;
+
 /*
  *  Convenience routine to output raster text
  *  Use VARARGS to make this more flexible
@@ -325,7 +329,7 @@ void display()
    glWindowPos2i(5,5);
 
    // Show commands
-   Print("f/F: Toggle Frozen/Falling | n/N: New scene while frozen");
+   Print("f/F: Frozen/Falling | PgUp: Move Fwd | PdDn: Move Bkwd | Mouse: Fwd/Bkwd Sideways");
    
    //  Render the scene and make it visible
    glFlush();
@@ -351,10 +355,10 @@ void special(int key,int x,int y)
       ph -= 5;
    //  PageUp key - increase dim
    else if (key == GLUT_KEY_PAGE_UP)
-      dim += 0.1;
+      dim -= 0.1;
    //  PageDown key - decrease dim
    else if (key == GLUT_KEY_PAGE_DOWN && dim>1)
-      dim -= 0.1;
+      dim += 0.1;
    //  Keep angles to +/-360 degrees
    th %= 360;
    ph %= 360;
@@ -402,6 +406,31 @@ void key(unsigned char ch,int x,int y)
 }
 
 /*
+ *  GLUT calls this routine when the mouse moves
+ */
+void mouseMove(int x, int y) {
+   if( xOrigin != -1 && yOrigin != -1){
+      //  Right and left movement changes
+      th += (xOrigin - x)/2;
+      xOrigin = x;
+
+      // Forward and backward movement
+      dim += (y - yOrigin)/2;
+      yOrigin = y;
+
+      //  Reproject
+      Project();
+
+      //  Redisplay the scene
+      glutPostRedisplay();
+   }
+   else{
+      xOrigin = x;
+      yOrigin = y;
+   }
+}
+
+/*
  *  GLUT calls this routine when the window is resized
  */
 void reshape(int width,int height)
@@ -423,7 +452,7 @@ void idle()
 
    dt = clock();
    rho = (double)(dt - t)/CLOCKS_PER_SEC;
-   if (rho >= 0.2){
+   if (rho >= 0.1){
       t = dt;
       if(frozen == 0){
          glutPostRedisplay();
@@ -450,6 +479,7 @@ int main(int argc,char* argv[])
    glutSpecialFunc(special);
    glutKeyboardFunc(key);
    glutIdleFunc(idle);
+   glutMotionFunc(mouseMove);
 
    // Set clock
    t = clock();
