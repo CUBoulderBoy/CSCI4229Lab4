@@ -64,6 +64,9 @@ double m_ar[NUM_SNOWFLAKES];
 // Mouse variables
 int xOrigin = -1;
 int yOrigin = -1;
+int m_button = 0;
+double max_dim = 40.0; //  Max dim to keep view of something
+double min_dim = 8.0;  //  Min dim to keep view of something
 
 /*
  *  Convenience routine to output raster text
@@ -406,28 +409,47 @@ void key(unsigned char ch,int x,int y)
 }
 
 /*
+ *  GLUT calls this routine when the mouse button pressed
+ */
+void mouseButton (int button, int state, int x, int y) {
+   xOrigin = x; 
+   yOrigin = y;
+   if( button == GLUT_LEFT_BUTTON){
+      m_button = 0;
+   }
+   if( button == GLUT_RIGHT_BUTTON){
+      m_button = 1;
+   }
+}
+
+/*
  *  GLUT calls this routine when the mouse moves
  */
 void mouseMove(int x, int y) {
-   if( xOrigin != -1 && yOrigin != -1){
-      //  Right and left movement changes
+   if ( m_button == 0){
+      //  Sideways angle view
       th += (xOrigin - x)/2;
+      th %= 360;
       xOrigin = x;
+
+      // Up and down angle view
+      ph += (y - yOrigin)/2;
+      ph %= 360;
+      yOrigin = y;
+   }
+   if ( m_button == 1){
+      //  Right and left movement changes
+      //fov += (xOrigin - x)/5;
 
       // Forward and backward movement
-      dim += (y - yOrigin)/2;
-      yOrigin = y;
-
-      //  Reproject
-      Project();
-
-      //  Redisplay the scene
-      glutPostRedisplay();
-   }
-   else{
-      xOrigin = x;
+      fov += (y - yOrigin)/2;
       yOrigin = y;
    }
+   //  Reproject
+   Project();
+
+   //  Redisplay the scene
+   glutPostRedisplay();
 }
 
 /*
@@ -476,9 +498,16 @@ int main(int argc,char* argv[])
    //  Set callbacks
    glutDisplayFunc(display);
    glutReshapeFunc(reshape);
+   
+   //  Keyboard handler functions
    glutSpecialFunc(special);
    glutKeyboardFunc(key);
+
+   // Idle function that does snowfall
    glutIdleFunc(idle);
+
+   //  Mouse handler functions
+   glutMouseFunc(mouseButton);
    glutMotionFunc(mouseMove);
 
    // Set clock
