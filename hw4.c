@@ -343,11 +343,17 @@ void display()
       Print("Z");
    }
    //  Display parameters
+   glWindowPos2i(5,25);
+
+   // Show commands
+   Print("f/F: Frozen/Falling Snow | PgUp: Move Fwd | PdDn: Move Bkwd | Arrows: Rotate Camera");
+   
+   //  Display parameters
    glWindowPos2i(5,5);
 
    // Show commands
-   Print("f/F: Frozen/Falling | PgUp: Move Fwd | PdDn: Move Bkwd | Mouse: Fwd/Bkwd Sideways");
-   
+   Print("p/P: View Mode | Mouse LButton: Rotate Camera | Mouse RButton: Fwd/Bkwd and R/L Strafe");
+
    //  Render the scene and make it visible
    glFlush();
    glutSwapBuffers();
@@ -402,7 +408,7 @@ void key(unsigned char ch,int x,int y)
    else if (ch == 'a' || ch == 'A')
       axes = 1-axes;
    //  Switch display mode
-   else if (ch == 'm' || ch == 'M')
+   else if (ch == 'p' || ch == 'P')
       mode = 1-mode;
    //  Toggle snow falling vs frozen
    else if (ch == 'f' || ch == 'F')
@@ -460,7 +466,12 @@ void mouseMove(int x, int y) {
       xOrigin = x;
 
       // Forward and backward movement
-      fov += (y - yOrigin)/2;
+      if ( mode ){
+         fov += (y - yOrigin)/2;
+      }
+      else{
+         dim += (y - yOrigin)/2;
+      }
       yOrigin = y;
    }
    //  Reproject
