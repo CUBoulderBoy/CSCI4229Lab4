@@ -60,15 +60,14 @@ double m_ar[NUM_SNOWFLAKES];
 //  Macro for sin & cos in degrees
 #define Cos(th) cos(3.1415927/180*(th))
 #define Sin(th) sin(3.1415927/180*(th))
+double Ex, Ey, Ez;
+double Vx = 0, Vy = 0, Vz =  0;
+int strafe = 0;
 
 // Mouse variables
 int xOrigin = -1;
 int yOrigin = -1;
 int m_button = 0;
-double max_dim = 40.0; //  Max dim to keep view of something
-double min_dim = 8.0;  //  Min dim to keep view of something
-double x_translate = 0;
-
 
 /*
  *  Convenience routine to output raster text
@@ -226,10 +225,23 @@ void display()
    //  Perspective - set eye position
    if (mode)
    {
-      double Ex = -2*dim*Sin(th)*Cos(ph);
-      double Ey = +2*dim        *Sin(ph);
-      double Ez = +2*dim*Cos(th)*Cos(ph);
-      gluLookAt(Ex,Ey,Ez , 0,0,0 , 0,Cos(ph),0);
+      double Ex2 = -2*dim*Sin(th)*Cos(ph);
+      double Ey2 = +2*dim        *Sin(ph);
+      double Ez2 = +2*dim*Cos(th)*Cos(ph);
+      if ( strafe ){
+         // Change vision point based on change in eye
+         Vx += Ex2 - Ex;
+         Vx += Ex2 - Ex;
+         Vx += Ex2 - Ex;
+      }
+
+      // Set eye variables
+      Ex = Ex2;
+      Ey = Ey2;
+      Ez = Ez2;
+
+      // Call gluLookAt
+      gluLookAt(Ex,Ey,Ez, Vx,Vy,Vz , 0,Cos(ph),0);
    }
    
    //  Orthogonal - set world orientation
@@ -430,6 +442,7 @@ void mouseButton (int button, int state, int x, int y) {
 void mouseMove(int x, int y) {
    if ( m_button == 0){
       //  Sideways angle view
+      strafe = 0;
       th += (xOrigin - x)/2;
       th %= 360;
       xOrigin = x;
@@ -441,7 +454,9 @@ void mouseMove(int x, int y) {
    }
    if ( m_button == 1){
       //  Right and left movement changes
-      x_translate = (xOrigin - x);
+      strafe = 1;
+      th += (xOrigin - x)/2;
+      th %= 360;
       xOrigin = x;
 
       // Forward and backward movement
