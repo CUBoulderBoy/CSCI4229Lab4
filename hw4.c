@@ -6,15 +6,17 @@
  *  
  *
  *  Key bindings:
- *  m          Toggle between perspective and orthogonal
- *  f          Toggle between snow frozen in time and falling snow
- *  n          For new snow view in frozen in time mode
- *  +/-        Changes field of view for perspective
- *  a          Toggle axes
- *  arrows     Change view angle
- *  PgDn/PgUp  Zoom in and out
- *  0          Reset view angle
- *  ESC        Exit
+ *  p/P          Toggle between perspective and orthogonal
+ *  f/F          Toggle between snow frozen in time and falling snow
+ *  n/N          For new snow view in frozen in time mode
+ *  +/-          Changes field of view for perspective
+ *  a/A          Toggle axes
+ *  arrows       Change view angle
+ *  PgUp/PgDn    Zoom in and out
+ *  Mouse LB     Change view angle
+ *  Mouse RB     Move Fwd/Bkwd and strafe side to side
+ *  0            Reset view angle
+ *  ESC          Exit
  */
 
 #include <stdio.h>
